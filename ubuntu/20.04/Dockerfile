@@ -11,9 +11,11 @@ RUN DEBIAN_FRONTEND=noninteractive apt -y install --no-install-recommends apt-ut
 RUN apt -y install --no-install-recommends git sudo bash gnupg
 
 # Ansible
-RUN add-apt-repository -y ppa:ansible/ansible
-RUN apt -y update
-RUN DEBIAN_FRONTEND=noninteractive apt -y install --no-install-recommends ansible
+#RUN add-apt-repository -y ppa:ansible/ansible
+#RUN apt -y update
+#RUN DEBIAN_FRONTEND=noninteractive apt -y install --no-install-recommends ansible
+RUN apt -y install --no-install-recommends python3-pip
+RUN pip3 install ansible-core ansible
 
 # systemd et al
 RUN apt -y install --no-install-recommends systemd cron kmod
