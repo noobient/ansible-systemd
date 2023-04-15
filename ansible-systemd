@@ -1,0 +1,42 @@
+#!/bin/bash
+
+set -eu
+
+if [ $# -ne 2 ]
+then
+    echo "Please specify action (build, push) and platform, e.g. 'ubuntu/22.04'!"
+    exit 1
+fi
+
+MATCH=0
+echo "${2}" | grep -E '^[[:alnum:]]+/[[:alnum:]]+\.*[[:alnum:]]*/*$' > /dev/null && MATCH=1
+if [ ${MATCH} -ne 1 ]
+then
+    echo "Invalid platform format! Specify distro and release, separated by slash, e.g. 'ubuntu/22.04'."
+    exit 2
+fi
+
+export PLATFORM=$(echo ${2} | cut -d'/' -f1)
+# Ensure we trim any trailing slashes
+export RELEASE=$(echo ${2} | cut -d'/' -f2 | sed 's@/*$@@')
+
+if [ ! -f "${PLATFORM}/${RELEASE}/Dockerfile" ]
+then
+    echo 'Dockerfile not found! Please check if the specified platform is correct.'
+    exit 4
+fi
+
+case "$1" in
+    build)
+        docker build --no-cache --pull --tag "bviktor/ansible-systemd-${PLATFORM}:${RELEASE}" "${2}"
+        ;;
+
+    push)
+        docker push "bviktor/ansible-systemd-${PLATFORM}:${RELEASE}"
+        ;;
+
+    *)
+        echo "Invalid action! Valid actions are: build, push."
+        exit 3
+        ;;
+esac
