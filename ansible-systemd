@@ -4,7 +4,7 @@ set -eu
 
 if [ $# -ne 2 ]
 then
-    echo "Please specify action (build, push) and platform, e.g. 'ubuntu/22.04'!"
+    echo "Please specify action (build, push, refresh, run, scan) and platform, e.g. 'ubuntu/22.04'!"
     exit 1
 fi
 
@@ -26,17 +26,82 @@ then
     exit 4
 fi
 
+function find_exec ()
+{
+    RET=0
+    podman --version &> /dev/null && RET=1 || true
+
+    if [ ${RET} -eq 1 ]
+    then
+        echo 'podman'
+    else
+        RET=0
+        docker --version &> /dev/null && RET=1 || true
+
+        if [ ${RET} -eq 1 ]
+        then
+            echo 'docker'
+        else
+            echo ''
+        fi
+    fi
+}
+
+function as_build ()
+{
+    docker build --no-cache --pull --tag "bviktor/ansible-systemd-${PLATFORM}:${RELEASE}" "${2}"
+}
+
+function as_push ()
+{
+    docker push "bviktor/ansible-systemd-${PLATFORM}:${RELEASE}"
+}
+
+function as_scan ()
+{
+    docker scout quickview "bviktor/ansible-systemd-${PLATFORM}:${RELEASE}"
+}
+
+function as_run ()
+{
+    # Determine container solution
+    export exec=$(find_exec)
+    # Fire up instance
+    CONT_ID=$(${exec} run --rm --detach "bviktor/ansible-systemd-${PLATFORM}:${RELEASE}")
+    # Don't exit the container if errors occur
+    set +e
+    # Let us check stuff before exiting
+    ${exec} exec -it "${CONT_ID}" bash
+    # Stop instance
+    ${exec} stop "${CONT_ID}"
+}
+
 case "$1" in
     build)
-        docker build --no-cache --pull --tag "bviktor/ansible-systemd-${PLATFORM}:${RELEASE}" "${2}"
+        as_build "${@}"
         ;;
 
     push)
-        docker push "bviktor/ansible-systemd-${PLATFORM}:${RELEASE}"
+        as_push "${@}"
+        ;;
+
+    scan)
+        as_push "${@}"
+        ;;
+
+    refresh)
+        as_scan "${@}"
+        as_build "${@}"
+        as_scan "${@}"
+        as_push "${@}"
+        ;;
+
+    run)
+        as_run "${@}"
         ;;
 
     *)
-        echo "Invalid action! Valid actions are: build, push."
+        echo "Invalid action! Valid actions are: build, push, refresh, run, scan."
         exit 3
         ;;
 esac
