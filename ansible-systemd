@@ -32,9 +32,11 @@ function set_podman_aliases ()
     cat << EOF > "${HOME}/.config/containers/registries.conf.d/bviktor.conf"
 [aliases]
   "bviktor/ansible-systemd-almalinux" = "docker.io/bviktor/ansible-systemd-almalinux"
+  "bviktor/ansible-systemd-archlinux" = "docker.io/bviktor/ansible-systemd-archlinux"
   "bviktor/ansible-systemd-fedora" = "docker.io/bviktor/ansible-systemd-fedora"
   "bviktor/ansible-systemd-lint" = "docker.io/bviktor/ansible-systemd-lint"
   "bviktor/ansible-systemd-ubuntu" = "docker.io/bviktor/ansible-systemd-ubuntu"
+  "archlinux" = "docker.io/archlinux"
 EOF
 }
 
