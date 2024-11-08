@@ -1,11 +1,6 @@
-FROM ubuntu:23.10
+FROM ubuntu:24.04
 
 # Update
-RUN apt -y update
-RUN apt -y dist-upgrade
-
-# TODO 24.04
-RUN sed -i s/mantic/noble/g /etc/apt/sources.list
 RUN apt -y update
 RUN apt -y dist-upgrade
 
