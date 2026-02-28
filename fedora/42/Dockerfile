@@ -1,4 +1,4 @@
-FROM fedora:40
+FROM fedora:42
 
 # Update
 RUN grep '^fastestmirror=.*' /etc/dnf/dnf.conf &>/dev/null && sed -Ei 's@^(fastestmirror)=.*@\1=True@' /etc/dnf/dnf.conf || echo 'fastestmirror=True' >> /etc/dnf/dnf.conf

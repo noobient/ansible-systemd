@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:26.04
 
 # Update
 RUN apt -y update
@@ -13,14 +13,14 @@ RUN apt -y install --no-install-recommends git sudo bash gnupg
 # Ansible
 # Use pip version, see linter notes below
 RUN apt -y install --no-install-recommends python3-pip
-RUN python3 -m pip install --user --no-warn-script-location ansible ansible-core
+RUN python3 -m pip install --user --no-warn-script-location --break-system-packages ansible ansible-core
 
 # systemd et al
 RUN apt -y install --no-install-recommends systemd cron kmod
 CMD [ "/lib/systemd/systemd" ]
 
 # Linter
-RUN python3 -m pip install --user --no-warn-script-location ansible-lint
+RUN python3 -m pip install --user --no-warn-script-location --break-system-packages ansible-lint
 # TODO ansible-lint ignores role-name in skip_list, and exclude on the meta doesn't work either:
 # https://github.com/ansible/ansible-lint/issues/2576
 # Apply a patch for now, quick-n-dirty sed for the rescue.
