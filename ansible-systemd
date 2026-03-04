@@ -39,6 +39,7 @@ EOF
 
 function find_exec ()
 {
+    # Linux Podman
     RET=0
     podman --version &> /dev/null && RET=1 || true
 
@@ -46,16 +47,29 @@ function find_exec ()
     then
         set_podman_aliases
         echo 'podman'
-    else
-        RET=0
-        docker --version &> /dev/null && RET=1 || true
+        return
+    fi
 
-        if [ ${RET} -eq 1 ]
-        then
-            echo 'docker'
-        else
-            echo ''
-        fi
+    # Podman Remote w/ Podman Desktop on Windows
+    RET=0
+    podman-remote-static-linux_amd64 --version &> /dev/null && RET=1 || true
+
+    if [ ${RET} -eq 1 ]
+    then
+        set_podman_aliases
+        echo 'podman-remote-static-linux_amd64'
+        return
+    fi
+
+    # Docker wherever
+    RET=0
+    docker --version &> /dev/null && RET=1 || true
+
+    if [ ${RET} -eq 1 ]
+    then
+        echo 'docker'
+    else
+        echo ''
     fi
 }
 
@@ -131,6 +145,12 @@ fi
 
 # Determine container solution
 export exec=$(find_exec)
+
+if [ -z "${exec}" ]
+then
+    echo 'Container executable not found. Make sure either Podman or Desktop is installed.'
+    exit 5
+fi
 
 case "$1" in
     build)
