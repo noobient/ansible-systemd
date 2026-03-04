@@ -75,7 +75,7 @@ function as_scan ()
     then
         ${exec} scout quickview "bviktor/ansible-systemd-${PLATFORM}:${RELEASE}"
     else
-        echo "Scan is unsupported with podman, skipping..."
+        echo "Scan is unsupported with Podman, skipping..."
     fi
 }
 
@@ -105,7 +105,8 @@ function as_refresh_all ()
 
     for (( i=0; i<${#all_platforms[@]}; i++ ));
     do
-        echo "Updating ${all_platforms[$i]} ..."
+        human_index=$(($i + 1))
+        echo -e "\e[32mUpdating ${all_platforms[$i]} ($human_index / ${#all_platforms[@]}) ...\e[0m"
         check_platform "${all_platforms[$i]}"
         as_refresh "${all_platforms[$i]}"
     done
